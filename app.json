@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "Founder's Workbook",
+    "slug": "founders-workbook",
+    "scheme": "founderswb",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon-512.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#FBF8F2",
+    "splash": {
+      "image": "./assets/icon-512.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1B344F"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "biz.acrossthetable.founderswb"
+    },
+    "android": {
+      "package": "biz.acrossthetable.founderswb",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon-512.png",
+        "backgroundColor": "#1B344F"
+      }
+    },
+    "notification": {
+      "icon": "./assets/icon-192.png",
+      "color": "#1B344F"
+    },
+    "plugins": ["expo-font", "expo-notifications"]
+  }
+}

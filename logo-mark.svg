@@ -1,0 +1,90 @@
+import React, { useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
+import { color, font, radius } from '../theme/tokens';
+import { Eyebrow, H1, Muted, Card, Button, Field, Input, Toggle } from '../components/ui';
+import { states } from '../content';
+import type { Commitment } from '../logic/types';
+
+export default function CommitmentScreen({ onStart }: { onStart: (c: Commitment) => void }) {
+  const [mode, setMode] = useState<'date' | 'hours'>('date');
+  const [name, setName] = useState('');
+  const [date, setDate] = useState('');
+  const [hours, setHours] = useState('5');
+  const [stateAbbr, setStateAbbr] = useState('');
+  const [reminderTime, setReminderTime] = useState('09:00');
+  const [reminders, setReminders] = useState(true);
+
+  const start = () => onStart({
+    name: name.trim(), mode, date, hours: Number(hours) || 0,
+    reminderTime, reminders, state: stateAbbr, createdAt: Date.now(),
+  });
+
+  return (
+    <ScrollView contentContainerStyle={st.wrap}>
+      <Eyebrow>Make your commitment</Eyebrow>
+      <H1 style={{ fontSize: 30, marginVertical: 6 }}>Commit to a finish line.</H1>
+      <Muted style={{ marginBottom: 20 }}>A small daily promise to yourself. You can change it anytime.</Muted>
+      <Card>
+        <Field label="Your name (optional)"><Input value={name} onChangeText={setName} placeholder="So we can greet you" /></Field>
+        <Field label="How do you want to commit?">
+          <View style={st.seg}>
+            <SegBtn label="Target date" on={mode === 'date'} onPress={() => setMode('date')} />
+            <SegBtn label="Weekly hours" on={mode === 'hours'} onPress={() => setMode('hours')} />
+          </View>
+        </Field>
+        {mode === 'date'
+          ? <Field label="Launch target date"><Input value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" /></Field>
+          : <Field label="Hours per week"><Input value={hours} onChangeText={setHours} keyboardType="number-pad" /></Field>}
+        <Field label="Your state">
+          <StatePicker value={stateAbbr} onChange={setStateAbbr} />
+        </Field>
+        <Field label="Daily reminder time"><Input value={reminderTime} onChangeText={setReminderTime} placeholder="09:00" /></Field>
+        <View style={st.toggleRow}>
+          <Text style={{ fontFamily: font.bodySemi, fontSize: 14, color: color.ink700 }}>Daily reminders</Text>
+          <Toggle on={reminders} onToggle={() => setReminders(!reminders)} />
+        </View>
+        <Button title="Start the workbook" onPress={start} style={{ marginTop: 8 }} />
+      </Card>
+    </ScrollView>
+  );
+}
+
+const SegBtn = ({ label, on, onPress }: { label: string; on: boolean; onPress: () => void }) => (
+  <Pressable onPress={onPress} style={[st.segBtn, on && { backgroundColor: color.white }]}>
+    <Text style={{ fontFamily: font.bodySemi, fontSize: 14, color: on ? color.navy700 : color.ink600 }}>{label}</Text>
+  </Pressable>
+);
+
+function StatePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const sorted = [...states].sort((a, b) => a.name.localeCompare(b.name));
+  const cur = states.find((s) => s.abbr === value);
+  return (
+    <View>
+      <Pressable onPress={() => setOpen((o) => !o)} style={st.select}>
+        <Text style={{ fontFamily: font.body, fontSize: 15, color: cur ? color.ink900 : color.textFaint }}>{cur ? cur.name : 'Select your state…'}</Text>
+      </Pressable>
+      {open && (
+        <View style={st.dropdown}>
+          <ScrollView style={{ maxHeight: 220 }} nestedScrollEnabled>
+            {sorted.map((s) => (
+              <Pressable key={s.abbr} onPress={() => { onChange(s.abbr); setOpen(false); }} style={st.opt}>
+                <Text style={{ fontFamily: font.body, fontSize: 15, color: s.abbr === value ? color.navy700 : color.ink700 }}>{s.name}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+      )}
+    </View>
+  );
+}
+
+const st = StyleSheet.create({
+  wrap: { maxWidth: 540, width: '100%', alignSelf: 'center', padding: 28, paddingTop: 48 },
+  seg: { flexDirection: 'row', backgroundColor: color.cream100, borderRadius: radius.md, padding: 4, gap: 4 },
+  segBtn: { flex: 1, paddingVertical: 9, borderRadius: 7, alignItems: 'center' },
+  toggleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 8 },
+  select: { borderWidth: 1, borderColor: color.borderDefault, borderRadius: radius.md, paddingHorizontal: 13, paddingVertical: 13, backgroundColor: color.white },
+  dropdown: { borderWidth: 1, borderColor: color.borderDefault, borderRadius: radius.md, marginTop: 6, backgroundColor: color.white },
+  opt: { paddingVertical: 12, paddingHorizontal: 14, borderBottomWidth: 1, borderBottomColor: color.borderSubtle },
+});

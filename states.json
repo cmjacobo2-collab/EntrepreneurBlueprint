@@ -1,0 +1,74 @@
+export interface Block {
+  t: 'points' | 'fields' | 'rating' | 'numbered' | 'note' | 'table' | 'checks'
+    | 'mark' | 'timeline' | 'avoid' | 'statecost' | 'costs' | 'statelinks' | 'steps' | 'resources';
+  label?: string;
+  items?: string[];
+  text?: string;
+  count?: number;
+  columns?: string[];
+  rows?: number;
+}
+
+export interface Section {
+  id: string;
+  part: number;
+  stage?: string;
+  title: string;
+  lead?: string;
+  teach?: string;
+  learn?: string;
+  why?: string;
+  example?: string;
+  quote?: string;
+  exercise?: string;
+  methods?: string[];
+  mistakes?: string;
+  includes?: string[];
+  whyItems?: string[];
+  overlook?: string[];
+  pledge?: string;
+  isPledge?: boolean;
+  isDecision?: boolean;
+  questions?: string[];
+  blocks?: Block[];
+}
+
+export interface PartMeta { part: number; name: string; blurb: string; sectionCount: number; }
+export interface DecisionDef { val: 'go' | 'adjust' | 'stop'; label: string; desc: string; }
+
+export interface Workbook {
+  meta: {
+    title: string;
+    totalSections: number;
+    parts: PartMeta[];
+    decisionDefs: DecisionDef[];
+    decisionBanner: Record<string, { title: string; blurb: string; bg: string; fg: string }>;
+    note: string;
+  };
+  sections: Section[];
+}
+
+export interface StateCost {
+  llc: string; dbaCost: string; salesLabel: string; salesCost: string; note: string;
+}
+export interface StateInfo {
+  abbr: string; name: string;
+  regName: string; regUrl: string; taxName: string; taxUrl: string;
+  cost: StateCost;
+}
+
+export type Answers = Record<string, string | boolean | number>;
+export type Decision = '' | 'go' | 'adjust' | 'stop';
+
+export interface Account {
+  firstName: string; lastName: string; fullName: string;
+  businessName: string; industry: string; bizType: string;
+  email: string;
+  /** NOTE: front-end stub only. NEVER store plaintext passwords in production — hash + verify server-side. */
+  password: string;
+  accountNo: string; verified: boolean; createdAt: number;
+}
+export interface Commitment {
+  name: string; mode: 'date' | 'hours'; date: string; hours: number;
+  reminderTime: string; reminders: boolean; state: string; createdAt: number;
+}

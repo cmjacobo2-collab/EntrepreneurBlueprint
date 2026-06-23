@@ -1,0 +1,59 @@
+import React from 'react';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { color, font, radius } from '../theme/tokens';
+import { Eyebrow, H1, Muted, Button } from '../components/ui';
+import { useStore } from '../state/store';
+import { sections, workbook } from '../content';
+import { completedCount, isDone } from '../logic/workbook';
+import { decisionBanner } from '../theme/tokens';
+
+export default function SummaryScreen() {
+  const { answers, decision, go } = useStore();
+  const N = sections.length;
+  const done = completedCount(answers, decision);
+  const info = workbook.meta.decisionBanner[decision || 'none'];
+  const ban = decisionBanner[(decision || 'none') as keyof typeof decisionBanner];
+  const decStep = sections.findIndex((s) => s.isDecision) + 1;
+  const validation = sections.map((s, i) => ({ s, i })).filter((x) => x.s.part === 2);
+
+  return (
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={st.wrap}>
+      <Eyebrow>Summary & decision</Eyebrow>
+      <H1 style={{ fontSize: 28, marginVertical: 4 }}>Where you landed.</H1>
+      <Muted>You’ve completed {done} of {N} sections.</Muted>
+
+      <View style={[st.banner, { backgroundColor: ban.bg }, !decision && { borderWidth: 1, borderColor: color.borderDefault }]}>
+        <Text style={[st.banLabel, { color: ban.fg }]}>YOUR DECISION</Text>
+        <Text style={[st.banTitle, { color: ban.fg }]}>{info.title}</Text>
+        <Text style={[st.banBlurb, { color: ban.fg }]}>{info.blurb}</Text>
+      </View>
+      {!decision && <Button title="Go to the go/no-go section" style={{ marginTop: 14, alignSelf: 'flex-start', paddingHorizontal: 22 }} onPress={() => go(decStep)} />}
+
+      <H1 style={{ fontSize: 18, marginTop: 26, marginBottom: 10 }}>Validation checklist</H1>
+      {validation.map((x) => {
+        const d = isDone(x.s, answers, decision);
+        return (
+          <Pressable key={x.s.id} onPress={() => go(x.i + 1)} style={st.checkRow}>
+            <View style={[st.circle, d && { backgroundColor: color.forest050, borderColor: color.forest100 }]}>
+              <Text style={{ color: d ? color.forest600 : color.textFaint, fontSize: 11 }}>{d ? '✓' : ''}</Text>
+            </View>
+            <Text style={st.checkLabel}>{x.s.title}</Text>
+          </Pressable>
+        );
+      })}
+
+      <Button title="Back to the workbook" variant="ghost" style={{ marginTop: 24, alignSelf: 'flex-start', paddingHorizontal: 22 }} onPress={() => go(N)} />
+    </ScrollView>
+  );
+}
+
+const st = StyleSheet.create({
+  wrap: { padding: 22, paddingBottom: 80, maxWidth: 760, width: '100%', alignSelf: 'center' },
+  banner: { marginTop: 24, borderRadius: radius.lg, padding: 24 },
+  banLabel: { fontFamily: font.mono, fontSize: 11, letterSpacing: 1, opacity: 0.85 },
+  banTitle: { fontFamily: font.display, fontSize: 24, marginVertical: 4 },
+  banBlurb: { fontFamily: font.body, fontSize: 15, lineHeight: 22 },
+  checkRow: { flexDirection: 'row', alignItems: 'center', gap: 11, borderWidth: 1, borderColor: color.borderDefault, borderRadius: radius.sm, padding: 11, marginBottom: 6 },
+  circle: { width: 22, height: 22, borderRadius: 999, borderWidth: 1, borderColor: color.borderDefault, alignItems: 'center', justifyContent: 'center' },
+  checkLabel: { flex: 1, fontFamily: font.body, fontSize: 14, color: color.ink700 },
+});

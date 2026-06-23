@@ -1,0 +1,35 @@
+import React from 'react';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { color, font } from '../theme/tokens';
+import { Eyebrow, H1, Muted, Card, Button } from '../components/ui';
+import type { AcctDraft } from './AccountFormScreen';
+
+export default function AccountVerifyScreen({ draft, onBack, onConfirm }: { draft: AcctDraft; onBack: () => void; onConfirm: () => void }) {
+  const Row = ({ k, v }: { k: string; v: string }) => (
+    <View style={st.row}><Text style={st.k}>{k}</Text><Text style={st.v}>{v || '—'}</Text></View>
+  );
+  return (
+    <ScrollView contentContainerStyle={st.wrap}>
+      <Eyebrow>Confirm & lock</Eyebrow>
+      <H1 style={{ fontSize: 28, marginVertical: 6 }}>Confirm your details.</H1>
+      <Muted style={{ marginBottom: 20 }}>Name, business name, industry, and business type are locked after you confirm.</Muted>
+      <Card>
+        <Row k="Name" v={`${draft.firstName} ${draft.lastName}`.trim()} />
+        <Row k="Email" v={draft.email} />
+        <Row k="Business name" v={draft.businessName} />
+        <Row k="Industry" v={draft.industry} />
+        <Row k="Business type" v={draft.bizType} />
+        <View style={{ flexDirection: 'row', marginTop: 18, gap: 10 }}>
+          <Button title="Go back & edit" variant="ghost" style={{ flex: 1 }} onPress={onBack} />
+          <Button title="Confirm & continue" style={{ flex: 1 }} onPress={onConfirm} />
+        </View>
+      </Card>
+    </ScrollView>
+  );
+}
+const st = StyleSheet.create({
+  wrap: { maxWidth: 480, width: '100%', alignSelf: 'center', padding: 28, paddingTop: 48 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: color.borderSubtle, gap: 16 },
+  k: { fontFamily: font.body, fontSize: 13, color: color.ink500 },
+  v: { fontFamily: font.bodySemi, fontSize: 14, color: color.navy700, flex: 1, textAlign: 'right' },
+});

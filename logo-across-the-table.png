@@ -1,0 +1,71 @@
+import React from 'react';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { color, font, radius } from '../theme/tokens';
+import { Eyebrow, H1, Muted, Card, Button, ProgressRing, ProgressBar, Tag } from '../components/ui';
+import { useStore } from '../state/store';
+import { parts, sections } from '../content';
+import { progressPct, completedCount, partProgress, todaysAffirmation } from '../logic/workbook';
+
+export default function IntroScreen() {
+  const { answers, decision, commitment, account, go } = useStore();
+  const pct = progressPct(answers, decision);
+  const done = completedCount(answers, decision);
+  const name = commitment?.name || account?.fullName.split(' ')[0] || '';
+  const firstStepOfPart = (part: number) => sections.findIndex((s) => s.part === part) + 1;
+
+  return (
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={st.wrap}>
+      <Eyebrow>Founder’s workbook</Eyebrow>
+      <H1 style={{ fontSize: 32, marginVertical: 4 }}>Hi{name ? `, ${name}` : ''}.</H1>
+      <Muted style={{ marginBottom: 18 }}>A little progress most days adds up fast. Here’s where you are.</Muted>
+
+      <View style={st.topRow}>
+        <ProgressRing pct={pct} />
+        <Card style={[st.affCard, { flex: 1, minWidth: 220 }]}>
+          <Tag>Today’s affirmation</Tag>
+          <Text style={st.aff}>{todaysAffirmation()}</Text>
+        </Card>
+      </View>
+
+      <Button title={done > 0 ? 'Continue where you left off' : 'Start the workbook'} variant="gold"
+        style={{ marginVertical: 18, alignSelf: 'flex-start', paddingHorizontal: 26 }}
+        onPress={() => go(0 < done ? findResume(answers, decision) : 1)} />
+
+      <H1 style={{ fontSize: 20, marginBottom: 12 }}>The seven parts</H1>
+      {parts.map((p) => {
+        const pp = partProgress(p.part, answers, decision);
+        return (
+          <Pressable key={p.part} onPress={() => go(firstStepOfPart(p.part))}>
+            <Card style={{ marginBottom: 12 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <View>
+                  <Tag>Part {p.part}</Tag>
+                  <Text style={st.partName}>{p.name}</Text>
+                </View>
+                <Text style={st.count}>{pp.done}/{pp.total}</Text>
+              </View>
+              <Muted style={{ fontSize: 14, marginTop: 6 }}>{p.blurb}</Muted>
+              <ProgressBar pct={pp.pct} />
+            </Card>
+          </Pressable>
+        );
+      })}
+    </ScrollView>
+  );
+}
+
+function findResume(A: any, dec: string) {
+  // first not-done section, else 1
+  const { isDone } = require('../logic/workbook');
+  const idx = sections.findIndex((s) => !isDone(s, A, dec));
+  return idx === -1 ? sections.length + 1 : idx + 1;
+}
+
+const st = StyleSheet.create({
+  wrap: { padding: 22, paddingBottom: 80, maxWidth: 760, width: '100%', alignSelf: 'center' },
+  topRow: { flexDirection: 'row', gap: 18, alignItems: 'center', flexWrap: 'wrap' },
+  affCard: { borderLeftWidth: 3, borderLeftColor: color.gold500 },
+  aff: { fontFamily: font.display, fontSize: 18, color: color.navy700, marginTop: 6, lineHeight: 24 },
+  partName: { fontFamily: font.display, fontSize: 17, color: color.navy700, marginTop: 3 },
+  count: { fontFamily: font.mono, fontSize: 11, color: color.textFaint },
+});

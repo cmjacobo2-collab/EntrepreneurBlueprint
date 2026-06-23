@@ -1,0 +1,57 @@
+import type { Section, Answers, Block } from './types';
+import { sections, affirmations } from '../content';
+
+/** Mirror of the prototype's completion rules. Keep these in lockstep with the design. */
+export function blocksDone(sec: Section, A: Answers): boolean {
+  if (!sec.blocks) return true;
+  return sec.blocks.every((b: Block, bi: number) => {
+    const k = (ii: number) => `${sec.id}:${bi}:${ii}`;
+    const val = (key: string) => (A[key] ?? '').toString().trim();
+    if (b.t === 'fields') return (b.items || []).every((_, ii) => val(k(ii)) !== '');
+    if (b.t === 'rating') return (b.items || []).every((_, ii) => !!A[k(ii)]);
+    if (b.t === 'checks') return (b.items || []).some((_, ii) => !!A[k(ii)]);
+    if (b.t === 'numbered') {
+      const cnt = b.count ?? (b.items ? b.items.length : 0);
+      for (let ii = 0; ii < cnt; ii++) if (val(k(ii)) !== '') return true;
+      return false;
+    }
+    if (b.t === 'table') {
+      const rows = b.rows ?? 0; const cols = (b.columns || []).length;
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++)
+        if (val(`${sec.id}:${bi}:${r}:${c}`) !== '') return true;
+      return false;
+    }
+    if (b.t === 'mark') return !!A[`${sec.id}:${bi}:0`];
+    return true; // points/note/timeline/etc. are informational
+  });
+}
+
+export function isDone(sec: Section, A: Answers, decision: string): boolean {
+  if (sec.isPledge) return !!A[`${sec.id}pledge`];
+  if (sec.blocks) return blocksDone(sec, A);
+  const allFilled = (sec.questions || []).every((_, i) => (A[`${sec.id}q${i}`] ?? '').toString().trim() !== '');
+  if (sec.isDecision) return allFilled && !!decision;
+  return allFilled;
+}
+
+export function completedCount(A: Answers, decision: string): number {
+  return sections.filter((s) => isDone(s, A, decision)).length;
+}
+
+export function progressPct(A: Answers, decision: string): number {
+  return Math.round((completedCount(A, decision) / sections.length) * 100);
+}
+
+export function partProgress(part: number, A: Answers, decision: string) {
+  const secs = sections.filter((s) => s.part === part);
+  const done = secs.filter((s) => isDone(s, A, decision)).length;
+  return { done, total: secs.length, pct: Math.round((done / secs.length) * 100) };
+}
+
+/** Deterministic affirmation of the day (matches prototype). */
+export function todaysAffirmation(): string {
+  const day = Math.floor(Date.now() / 86400000);
+  return affirmations[day % affirmations.length];
+}
+
+export const pad2 = (n: number) => (n < 10 ? '0' : '') + n;
