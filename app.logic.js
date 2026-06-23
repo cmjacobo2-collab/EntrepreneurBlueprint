@@ -148,7 +148,7 @@ class Component extends DCLogic {
   acctValid() {
     const a = this.state.acct;
     const emailOk = /.+@.+\..+/.test((a.email || '').trim());
-    return !!(a.fullName.trim() && a.businessName.trim() && a.industry && a.bizType && emailOk && a.phone.trim());
+    return !!(a.fullName.trim() && emailOk);
   }
   reviewAccount() { if (this.acctValid()) this.setState({ acctStep: 'verify' }); }
   backToAcctForm() { this.setState({ acctStep: 'form' }); }
