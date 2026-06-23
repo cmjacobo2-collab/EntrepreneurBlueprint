@@ -81,6 +81,28 @@
     ]);
   }
 
+  // Centered, branded onboarding header — logo + wordmark + tagline over a hairline.
+  function brandHeader() {
+    return h('div', '', {}, [
+      h('div', 'display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:6px 0 0;', {}, [
+        h('img', 'height:66px;width:auto;display:block;', { attr: { src: LOGO, alt: 'Across the Table' } }),
+        h('div', 'font-family:var(--font-display);font-weight:800;font-size:22px;letter-spacing:-0.01em;color:var(--navy-700);line-height:1;', { text: "Founder's Workbook" }),
+        h('span', 'font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-muted);', { text: 'A step-by-step business launch planner' })
+      ]),
+      h('div', 'height:1px;background:var(--border-default);margin:24px 0 2px;', {})
+    ]);
+  }
+
+  // Centered company footer line for the onboarding surface.
+  function onbFooter() {
+    return h('div', 'margin:36px 0 0;padding-top:18px;text-align:center;', {}, [
+      h('span', 'font-size:12.5px;color:var(--text-muted);', {}, [
+        document.createTextNode('Across the Table · '),
+        h('a', 'color:var(--text-muted);text-decoration:none;font-weight:600;', { text: 'acrossthetable.biz', attr: { href: 'https://AcrosstheTable.biz', target: '_blank', rel: 'noopener' } })
+      ])
+    ]);
+  }
+
   const H1 = 'font-family:var(--font-display);font-weight:800;font-size:var(--text-2xl);line-height:1.08;letter-spacing:-0.02em;color:var(--navy-700);margin:26px 0 0;text-wrap:balance;';
   const SUB = 'font-size:var(--text-md);line-height:1.55;color:var(--text-body);margin:12px 0 0;';
   const INPUT = 'height:46px;padding:0 .9rem;font-size:15px;color:var(--text-strong);background:var(--white);border:1px solid var(--border-strong);border-radius:var(--radius-md);outline:none;font-family:var(--font-sans);';
@@ -105,10 +127,11 @@
 
   /* ============================ ONBOARDING ============================== */
   function Onboarding(vm) {
-    const inner = [logoHeader(false)];
+    const inner = [brandHeader()];
     if (vm.isAccountScreen) inner.push(vm.acctStepForm ? accountForm(vm) : accountVerify(vm));
     if (vm.isCommitScreen) inner.push(commitScreen(vm));
-    const wrap = h('div', 'max-width:540px;margin:0 auto;padding:' + vm.onbPad + ';', { cls: 'att-fade' }, inner);
+    inner.push(onbFooter());
+    const wrap = h('div', 'max-width:460px;margin:0 auto;padding:' + vm.onbPad + ';', { cls: 'att-fade' }, inner);
     return h('div', 'height:100%;width:100%;overflow-y:auto;background:var(--cream-50);', { cls: 'att-scroll' }, [wrap]);
   }
 
@@ -117,44 +140,30 @@
   }
 
   function accountForm(vm) {
-    const nameF = fieldCol('Full name', textInput(INPUT, vm.acctFullName, vm.setAcctName, { placeholder: 'e.g. Dana Ruiz' }));
-    const bizF = fieldCol('Business name', textInput(INPUT, vm.acctBusinessName, vm.setAcctBiz, { placeholder: 'e.g. Maple & Co' }));
-    const indF = h('div', 'flex:1;min-width:170px;display:flex;flex-direction:column;gap:6px;', {}, [
-      labelEl('Industry'),
-      selectEl(INPUTSEL, vm.acctIndustry, vm.setAcctIndustry, optsFromStrings(vm.industryOptions, 'Select industry…'))
+    const nameF = h('div', 'margin:26px 0 0;display:flex;flex-direction:column;gap:7px;', {}, [
+      labelEl('Your name'),
+      textInput(INPUT, vm.acctFullName, vm.setAcctName, { placeholder: 'e.g. Dana Rivera' })
     ]);
-    const typeF = h('div', 'flex:1;min-width:170px;display:flex;flex-direction:column;gap:6px;', {}, [
-      labelEl('Business type'),
-      selectEl(INPUTSEL, vm.acctBizType, vm.setAcctType, optsFromStrings(vm.bizTypeOptions, 'Select type…'))
-    ]);
-    const emailF = h('div', 'flex:1;min-width:170px;display:flex;flex-direction:column;gap:6px;', {}, [
-      labelEl('Email address'), textInput(INPUT, vm.acctEmail, vm.setAcctEmail, { type: 'email', placeholder: 'you@business.com' })
-    ]);
-    const phoneF = h('div', 'flex:1;min-width:170px;display:flex;flex-direction:column;gap:6px;', {}, [
-      labelEl('Phone number'), textInput(INPUT, vm.acctPhone, vm.setAcctPhone, { type: 'tel', placeholder: '(555) 123-4567' })
+    const emailF = h('div', 'margin:20px 0 0;display:flex;flex-direction:column;gap:7px;', {}, [
+      labelEl('Email'),
+      textInput(INPUT, vm.acctEmail, vm.setAcctEmail, { type: 'email', placeholder: 'you@email.com' }),
+      h('span', 'font-size:12px;color:var(--text-muted);margin-top:2px;', { text: 'Your welcome email and access code go here.' })
     ]);
 
-    const noteIcon = iconSpan('flex:none;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:99px;background:var(--gold-500);color:#fff;margin-top:1px;', svg(15, 15, 2.2, P.lock));
-    const note = h('div', 'margin:22px 0 0;display:flex;gap:12px;align-items:flex-start;background:var(--gold-050);border:1px solid var(--gold-100);border-radius:var(--radius-md);padding:14px 16px;', {}, [
-      noteIcon,
-      h('p', 'font-size:13px;line-height:1.55;color:var(--text-body);margin:0;', { html: 'One account covers <strong>one business</strong>. Running more than one business? Purchase a licensing term at <a href="https://AcrosstheTable.biz" target="_blank" rel="noopener" style="color:var(--navy-600);font-weight:600;">AcrosstheTable.biz</a> or email <a href="mailto:info@acrossthetable.biz" style="color:var(--navy-600);font-weight:600;">info@acrossthetable.biz</a>.' })
+    const ctaWrap = h('div', 'margin:28px 0 0;', {}, [
+      h('button', vm.acctCtaStyle, { text: 'Create account', onClick: vm.confirmAccount })
     ]);
 
-    const cta = h('button', vm.acctCtaStyle, { text: 'Review my details', onClick: vm.reviewAccount });
-    const ctaWrap = h('div', 'margin:24px 0 0;', {}, [
-      cta,
-      h('p', 'font-size:12px;line-height:1.5;color:var(--text-faint);margin:12px 0 0;text-align:center;', { text: "You'll confirm everything on the next step. Once verified, your business details can't be changed." })
+    const signinNote = h('p', 'display:none;font-size:12px;line-height:1.5;color:var(--text-muted);margin:10px 0 0;text-align:center;', { text: 'Your account is saved on this device — if you’ve set one up before, just continue above.' });
+    const signin = h('p', 'font-size:13px;color:var(--text-body);margin:16px 0 0;text-align:center;', {}, [
+      document.createTextNode('Already have an account? '),
+      h('a', 'color:var(--navy-700);font-weight:600;text-decoration:underline;text-underline-offset:2px;cursor:pointer;', { text: 'Sign in', onClick: () => { signinNote.style.display = 'block'; } })
     ]);
 
     return h('div', '', {}, [
-      h('h1', H1, { text: 'Create your account.' }),
-      h('p', SUB, { text: "Tell us about you and your business. We'll use these details across the app and to set up your one-on-one consultations." }),
-      h('div', 'margin:26px 0 0;display:flex;flex-direction:column;gap:18px;', {}, [
-        nameF, bizF,
-        h('div', 'display:flex;gap:12px;flex-wrap:wrap;', {}, [indF, typeF]),
-        h('div', 'display:flex;gap:12px;flex-wrap:wrap;', {}, [emailF, phoneF])
-      ]),
-      note, ctaWrap
+      h('h1', H1, { text: 'Create your account' }),
+      h('p', SUB, { text: 'Welcome to StartWise. Set up your account to get your access code.' }),
+      nameF, emailF, ctaWrap, signin, signinNote
     ]);
   }
 
