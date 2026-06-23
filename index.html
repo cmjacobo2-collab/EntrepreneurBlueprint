@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Across the Table — Founder's Workbook</title>
+
+<!-- Design system (reused verbatim from the handoff) -->
+<link rel="stylesheet" href="_ds/across-the-table-design-system-52082246-cccd-4b7c-b721-c75c41bcccd7/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/across-the-table-design-system-52082246-cccd-4b7c-b721-c75c41bcccd7/tokens/colors.css">
+<link rel="stylesheet" href="_ds/across-the-table-design-system-52082246-cccd-4b7c-b721-c75c41bcccd7/tokens/typography.css">
+<link rel="stylesheet" href="_ds/across-the-table-design-system-52082246-cccd-4b7c-b721-c75c41bcccd7/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/across-the-table-design-system-52082246-cccd-4b7c-b721-c75c41bcccd7/tokens/elevation.css">
+<link rel="stylesheet" href="_ds/across-the-table-design-system-52082246-cccd-4b7c-b721-c75c41bcccd7/tokens/base.css">
+<link rel="stylesheet" href="_ds/across-the-table-design-system-52082246-cccd-4b7c-b721-c75c41bcccd7/styles.css">
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B344F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Founder's Workbook">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{font-family:var(--font-sans);color:var(--text-body);background:var(--cream-50);-webkit-font-smoothing:antialiased;}
+  #root{height:100%;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+  .att-fade{animation:fadeUp var(--dur-base,200ms) var(--ease-out,ease) both;}
+  .att-scroll::-webkit-scrollbar{width:10px;}
+  .att-scroll::-webkit-scrollbar-thumb{background:var(--sand-300);border-radius:99px;border:3px solid var(--cream-50);}
+  textarea,input,select,button{font-family:var(--font-sans);}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- runtime.js defines DCLogic (base class) first; app.logic.js extends it; boot is deferred to DOMContentLoaded -->
+<script src="runtime.js"></script>
+<script src="app.logic.js"></script>
+<script src="render.js"></script>
+</body>
+</html>
